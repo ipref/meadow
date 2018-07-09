@@ -3,4 +3,11 @@ name = "meadow"
 version = "0.1.0"
 authors = ["waldemar <waldemar@wdmsys.com>"]
 
-[dependencies]
+# [dependencies]
+# clap = "2"
+
+[dependencies.clap]
+version = "2"
+#  no "wrap_help" from default dependencies but "suggestions" and "color" are ok
+default-features = false
+features = [ "suggestions", "color" ]
