@@ -1,6 +1,5 @@
 /* Copyright (c) 2018 Waldemar Augustyn */
 
-
 use clap::{App, Arg, SubCommand};
 use std::process;
 
