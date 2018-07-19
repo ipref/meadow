@@ -9,7 +9,6 @@ pub struct Config {
 }
 
 pub fn get() -> Config {
-
     // read cli
 
     let cli = App::new(crate_name!())
@@ -31,9 +30,13 @@ pub fn get() -> Config {
                         .about("display usage"))                // have to manually call after override
                 .get_matches();
 
-    let cmd = if let Some(name) = cli.subcommand_name() {name} else {"help"};
+    let cmd = if let Some(name) = cli.subcommand_name() {
+        name
+    } else {
+        "help"
+    };
     if cmd != "start" {
-        println!("{}", cli.usage());    // "start" missing, print help
+        println!("{}", cli.usage()); // "start" missing, print help
         process::exit(0);
     }
 

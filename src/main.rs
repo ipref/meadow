@@ -4,15 +4,14 @@
 extern crate clap;
 #[macro_use]
 extern crate log;
-extern crate flexi_logger;
 #[cfg(debug_assertions)]
 extern crate chrono;
+extern crate flexi_logger;
 
 mod config;
 mod logger;
 
 fn main() {
-
     /* Get config
      *
      *  Ideally, cfg would be acessible globally from any thread without locks
