@@ -5,8 +5,13 @@ use std::process;
 
 pub struct Config {
     pub debug: bool,
-    pub port: u16,
+    pub gw_port: u16,
+    pub gw_mtu: u32,
+    pub tun_mtu: u32,
 }
+
+pub const optlen: usize = 8 + 4 + 4 + 16 + 16; // udphdr + encap + opt + ref + ref
+pub const tun_hdrlen: usize = 4;
 
 pub fn get() -> Config {
     // read cli
@@ -48,6 +53,8 @@ pub fn get() -> Config {
 
     Config {
         debug: cli.is_present("debug"),
-        port: 1045,
+        gw_port: 1045,
+        gw_mtu: 1500,
+        tun_mtu: 1500 - optlen as u32,
     }
 }
