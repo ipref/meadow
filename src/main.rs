@@ -51,7 +51,7 @@ fn main() {
      *  which opt for a mutable structure protected by mutex.
      */
 
-    let cfg = config::get();
+    let cfg = config::new();
     logger::init(cfg.debug);
 
     println!("configuration:");

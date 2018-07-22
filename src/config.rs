@@ -13,7 +13,7 @@ pub struct Config {
 pub const optlen: usize = 8 + 4 + 4 + 16 + 16; // udphdr + encap + opt + ref + ref
 pub const tun_hdrlen: usize = 4;
 
-pub fn get() -> Config {
+pub fn new() -> Config {
     // read cli
 
     let cli = App::new(crate_name!())
