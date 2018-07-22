@@ -8,61 +8,44 @@ extern crate log;
 extern crate chrono;
 extern crate flexi_logger;
 
+use std::sync::Arc;
+use std::thread;
+
 mod config;
-mod logger;
 mod fwd;
+mod logger;
 mod mapper;
 
-// concepts in progress
-
-enum fill_type {
-    LOCAL_UDP,
-    LOCAL_ICMP,
+enum FillType {
+    LocalUDP,
+    LocalICMP,
 }
 
 // create a packet with known contents
-fn fill(pb: &mut fwd::PktBuf, what:fill_type) {
-
+fn fill(pb: &mut fwd::PktBuf, what: FillType) {
     match what {
-        fill_type::LOCAL_UDP => {
-        }
-        fill_type::LOCAL_ICMP => {
-        }
+        FillType::LocalUDP => {}
+        FillType::LocalICMP => {}
     }
 }
 
-fn cip() {
+fn cip(cfg: &config::Config) {
+    let mut pb = fwd::PktBuf::new(cfg);
 
-    let mut pb = fwd::PktBuf::new();
-
-    fill(&mut pb, fill_type::LOCAL_UDP);
+    fill(&mut pb, FillType::LocalUDP);
     pb.fwd_to_gw();
     pb.fwd_to_tun();
 }
 
+// Start threads then wait forever
 fn main() {
-    /* Get config
-     *
-     *  Ideally, cfg would be acessible globally from any thread without locks
-     *  and without fear.
-     *
-     *  Currently, rust makes such an arrangement very difficult to implement. In
-     *  truth, it makes it impossible. We're going to follow other implementations
-     *  which opt for a mutable structure protected by mutex.
-     */
-
-    let cfg = config::new();
+    let cfg = Arc::new(config::new());
     logger::init(cfg.debug);
 
-    println!("configuration:");
-    println!("    port:   {}", cfg.gw_port);
-    println!("    debug:  {}", cfg.debug);
+    let cip_cfg = cfg.clone();
+    let cip_thread = thread::spawn(move || {
+        cip(&cip_cfg);
+    });
 
-    trace!("trace message");
-    debug!("debug message");
-    info!("info message");
-    warn!("warn message");
-    error!("error message");
-
-    cip()
+    cip_thread.join().unwrap();
 }

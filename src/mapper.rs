@@ -10,21 +10,17 @@ pub struct Arec {
 }
 
 pub fn get_dst_ipref(daddr: Ipv4Addr) -> (Ipv4Addr, u128) {
-
     (Ipv4Addr::new(192, 168, 84, 94), 2222)
 }
 
 pub fn get_src_ipref(saddr: Ipv4Addr) -> (Ipv4Addr, u128) {
-
     (Ipv4Addr::new(192, 168, 84, 93), 1111)
 }
 
 pub fn get_dst_ip(gw: Ipv4Addr, rff: u128) -> Ipv4Addr {
-
     Ipv4Addr::new(192, 168, 71, 135)
 }
 
 pub fn get_src_ea(gw: Ipv4Addr, rff: u128) -> Ipv4Addr {
-
     Ipv4Addr::new(10, 244, 4, 202)
 }

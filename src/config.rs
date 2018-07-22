@@ -8,10 +8,10 @@ pub struct Config {
     pub gw_port: u16,
     pub gw_mtu: u32,
     pub tun_mtu: u32,
+    pub tun_hdrlen: usize,
 }
 
-pub const optlen: usize = 8 + 4 + 4 + 16 + 16; // udphdr + encap + opt + ref + ref
-pub const tun_hdrlen: usize = 4;
+pub const OPTLEN: usize = 8 + 4 + 4 + 16 + 16; // udphdr + encap + opt + ref + ref
 
 pub fn new() -> Config {
     // read cli
@@ -55,6 +55,7 @@ pub fn new() -> Config {
         debug: cli.is_present("debug"),
         gw_port: 1045,
         gw_mtu: 1500,
-        tun_mtu: 1500 - optlen as u32,
+        tun_mtu: 1500 - OPTLEN as u32,
+        tun_hdrlen: 4,
     }
 }
