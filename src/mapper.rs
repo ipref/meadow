@@ -1,5 +1,8 @@
 /* Copyright (c) 2018 Waldemar Augustyn */
 
+#![allow(dead_code)]
+#![allow(unused_variables)]
+
 use std::net::Ipv4Addr;
 
 pub struct Arec {

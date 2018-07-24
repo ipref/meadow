@@ -7,6 +7,7 @@ authors = ["waldemar <waldemar@wdmsys.com>"]
 log = "0.4"
 flexi_logger = "0.9"
 chrono = "0.4"
+byteorder = "1"
 
 [dependencies.clap]
 version = "2"
