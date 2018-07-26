@@ -20,7 +20,7 @@ mod mapper;
 
 // print raw packet
 fn pp_raw(pkt: &[u8]) {
-    println!("RAW: {}", pkt.iter().map(|b| format!("{:02x}", b)).collect::<Vec<String>>().join(" "));
+    trace!("RAW: {}", pkt.iter().map(|b| format!("{:02x}", b)).collect::<Vec<String>>().join(" "));
 }
 
 enum FillType {
@@ -96,7 +96,7 @@ fn cip(cfg: &config::Config) {
 fn main() {
     //
     let cfg = Arc::new(config::new());
-    logger::init(cfg.debug);
+    logger::init(cfg.debug, cfg.trace);
 
     info!("Starting {}", crate_name!());
 

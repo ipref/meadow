@@ -6,8 +6,8 @@ use flexi_logger::Logger;
 use log;
 use std::io;
 
-pub fn init(debug: bool) {
-    Logger::with_env_or_str(if debug { "meadow=debug" } else { "meadow=info" })
+pub fn init(debug: bool, trace: bool) {
+    Logger::with_env_or_str(if trace { "meadow=trace" } else if debug { "meadow=debug" } else { "meadow=info" })
         .format(log_formt)
         .start()
         .unwrap();

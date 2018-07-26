@@ -5,6 +5,7 @@ use std::process;
 
 pub struct Config {
     pub debug: bool,
+    pub trace: bool,
     pub gw_port: u16,
     pub gw_mtu: u32,
     pub tun_mtu: u32,
@@ -28,7 +29,14 @@ pub fn new() -> Config {
                         .default_value("/etc/ipref/ipref.conf")
                         .help("absolute path to config file")
                         .takes_value(true))
-                    .args_from_usage("-d, --debug 'enable debug'")
+                    .arg(Arg::with_name("debug")
+                        .short("d")
+                        .long("debug")
+                        .help("enable debug"))
+                    .arg(Arg::with_name("trace")
+                        .short("t")
+                        .long("trace")
+                        .help("enable trace (implies --debug)"))
                     .subcommand(SubCommand::with_name("start")
                         .about("start IPREF gateway"))
                     .subcommand(SubCommand::with_name("help")   // override default help subcommand
@@ -53,6 +61,7 @@ pub fn new() -> Config {
 
     Config {
         debug: cli.is_present("debug"),
+        trace: cli.is_present("trace"),
         gw_port: 1045,
         gw_mtu: 1500,
         tun_mtu: 1500 - OPTLEN as u32,
