@@ -16,6 +16,7 @@ pub struct PktBuf {
 }
 
 impl PktBuf {
+    //
     pub fn new(cfg: &config::Config) -> Self {
         PktBuf {
             pkt: vec![0; cfg.gw_mtu as usize + cfg.tun_hdrlen], // typically 1504
