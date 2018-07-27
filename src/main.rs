@@ -13,6 +13,7 @@ use byteorder::{BigEndian, ByteOrder};
 use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::thread;
+use log::Level;
 
 mod config;
 mod fwd;
@@ -130,8 +131,6 @@ fn fill(pb: &mut fwd::PktBuf, what: FakePkt) {
             off += 8;
             fill_payload(&mut pb.pkt[off..pb.tail]);
         }
-        //FakePkt::ICMP => {
-        //},
     }
 }
 
@@ -145,12 +144,29 @@ fn cip(cfg: &config::Config) {
     pb.data = config::OPTLEN;
     pb.tail = pb.data + 64;
 
+    debug!("ifc: tun");
     fill(&mut pb, FakePkt::UDP);
-    pp_net(&pb.pkt[pb.data..pb.tail]);
-    pp_trn(&pb.pkt[pb.data..pb.tail]);
-    pp_raw(&pb.pkt[pb.data..pb.tail]);
+    if log_enabled!(Level::Trace) {
+        pp_net(&pb.pkt[pb.data..pb.tail]);
+        pp_trn(&pb.pkt[pb.data..pb.tail]);
+        pp_raw(&pb.pkt[pb.data..pb.tail]);
+    }
+
+    debug!("add ipref option");
     pb.fwd_to_gw();
+    if log_enabled!(Level::Trace) {
+        pp_net(&pb.pkt[pb.data..pb.tail]);
+        pp_trn(&pb.pkt[pb.data..pb.tail]);
+        pp_raw(&pb.pkt[pb.data..pb.tail]);
+    }
+
+    debug!("rem ipref option");
     pb.fwd_to_tun();
+    if log_enabled!(Level::Trace) {
+        pp_net(&pb.pkt[pb.data..pb.tail]);
+        pp_trn(&pb.pkt[pb.data..pb.tail]);
+        pp_raw(&pb.pkt[pb.data..pb.tail]);
+    }
 }
 
 // Start threads then wait forever
