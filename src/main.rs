@@ -23,9 +23,9 @@ fn pp_raw(pkt: &[u8]) {
     trace!("RAW: {}", pkt.iter().map(|b| format!("{:02x}", b)).collect::<Vec<String>>().join(" "));
 }
 
-enum FillType {
-    LocalUDP,
-    //LocalICMP,
+enum FakePkt {
+    UDP,
+    //ICMP,
 }
 
 fn fill_iphdr(pkt: &mut[u8], pktlen: usize) {
@@ -59,10 +59,10 @@ fn fill_payload(pkt: &mut[u8]) {
 }
 
 // create a packet with known contents
-fn fill(pb: &mut fwd::PktBuf, what: FillType) {
+fn fill(pb: &mut fwd::PktBuf, what: FakePkt) {
     //
     match what {
-        FillType::LocalUDP => {
+        FakePkt::UDP => {
             let mut off = pb.data;
             let pktlen = pb.tail - pb.data;
             fill_iphdr(&mut pb.pkt[off..off+20], pktlen);
@@ -72,7 +72,7 @@ fn fill(pb: &mut fwd::PktBuf, what: FillType) {
             off += 8;
             fill_payload(&mut pb.pkt[off..pb.tail]);
         }
-        //FillType::LocalICMP => {}
+        //FakePkt::ICMP => {}
     }
 }
 
@@ -86,7 +86,7 @@ fn cip(cfg: &config::Config) {
     pb.data = config::OPTLEN;
     pb.tail = pb.data + 64;
 
-    fill(&mut pb, FillType::LocalUDP);
+    fill(&mut pb, FakePkt::UDP);
     pp_raw(&pb.pkt[pb.data..pb.tail]);
     pb.fwd_to_gw();
     pb.fwd_to_tun();
