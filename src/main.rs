@@ -22,7 +22,7 @@ mod mapper;
 // pretty print raw packet
 fn pp_raw(pkt: &[u8]) {
     trace!(
-        "RAW: {}",
+        "RAW  {}",
         pkt.iter()
             .map(|b| format!("{:02x}", b))
             .collect::<Vec<String>>()
@@ -58,6 +58,27 @@ fn pp_net(pkt: &[u8]) {
         BigEndian::read_u16(&pkt[6..8]), // flags + fragment
         BigEndian::read_u16(&pkt[10..12]), // hdr csum
     );
+}
+
+// pretty print transport header
+fn pp_trn(pkt: &[u8]) {
+    //
+    let off = ((pkt[0] & 0xf) * 4) as usize;
+    match pkt[9] {
+        //6 => {},
+        17 => {
+            // UDP  1045  1045  len(96) csum 0
+            trace!(
+                "UDP  {}  {}  len({}) csum:{:04x}",
+                BigEndian::read_u16(&pkt[off + 0..off + 2]), // src port
+                BigEndian::read_u16(&pkt[off + 2..off + 4]), // dst port
+                BigEndian::read_u16(&pkt[off + 4..off + 6]), // len
+                BigEndian::read_u16(&pkt[off + 6..off + 8]), // csum
+            );
+        }
+        //1 => {},
+        _ => trace!("PROTO[{}]", pkt[9]),
+    }
 }
 
 enum FakePkt {
@@ -109,7 +130,8 @@ fn fill(pb: &mut fwd::PktBuf, what: FakePkt) {
             off += 8;
             fill_payload(&mut pb.pkt[off..pb.tail]);
         }
-        //FakePkt::ICMP => {}
+        //FakePkt::ICMP => {
+        //},
     }
 }
 
@@ -125,6 +147,7 @@ fn cip(cfg: &config::Config) {
 
     fill(&mut pb, FakePkt::UDP);
     pp_net(&pb.pkt[pb.data..pb.tail]);
+    pp_trn(&pb.pkt[pb.data..pb.tail]);
     pp_raw(&pb.pkt[pb.data..pb.tail]);
     pb.fwd_to_gw();
     pb.fwd_to_tun();
