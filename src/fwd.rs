@@ -1,12 +1,10 @@
 /* Copyright (c) 2018 Waldemar Augustyn */
 
-//#![allow(dead_code)]
-#![allow(unused_variables)]
-
+use byteorder::{BigEndian, ByteOrder};
 use std::net::Ipv4Addr;
 
 use config;
-use mapper;
+use mapper::Mapper;
 
 pub struct PktBuf {
     // a la skbuf
@@ -25,23 +23,36 @@ impl PktBuf {
         }
     }
 
-    pub fn fwd_to_gw(&mut self) {
-        self.add_ipref_option()
+    pub fn fwd_to_gw(&mut self, map: &Mapper) {
+        self.add_ipref_option(map)
     }
-
+    /*
     pub fn fwd_to_tun(&mut self) {
         self.remove_ipref_option()
     }
+*/
+    fn add_ipref_option(&mut self, map: &Mapper) {
+        //
+        let ea = Ipv4Addr::from(BigEndian::read_u32(
+            &self.pkt[self.data + 16..self.data + 20],
+        ));
+        let ip = Ipv4Addr::from(BigEndian::read_u32(
+            &self.pkt[self.data + 12..self.data + 16],
+        ));
 
-    fn add_ipref_option(&mut self) {
-        let daddr = Ipv4Addr::new(10, 254, 4, 44);
-        let saddr = Ipv4Addr::new(192, 168, 71, 135);
-
-        let (dst_gw, dst_rff) = mapper::get_dst_ipref(daddr);
-        let (src_gw, src_rff) = mapper::get_src_ipref(saddr);
+        let (dst_gw, dst_ref) = map.get_their_ipref(ea);
+        if dst_gw.is_unspecified() {
+            error!("cannot get their gw+ref for {}, sending icmp()", ea);
+            return;
+        }
+        let (src_gw, src_ref) = map.get_our_ipref(ip);
+        if src_gw.is_unspecified() {
+            error!("cannot get our gw+ref for {}, sending icmp()", ip);
+            return;
+        }
         self.data -= config::OPTLEN;
     }
-
+    /*
     fn remove_ipref_option(&mut self) {
         let dst_gw = Ipv4Addr::new(192, 168, 84, 94);
         let dst_rff = 0x6622;
@@ -52,4 +63,5 @@ impl PktBuf {
         let src_ip = mapper::get_src_ea(src_gw, src_rff);
         self.data += config::OPTLEN;
     }
+*/
 }

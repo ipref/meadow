@@ -10,15 +10,17 @@ extern crate chrono;
 extern crate flexi_logger;
 
 use byteorder::{BigEndian, ByteOrder};
+use log::Level;
 use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::thread;
-use log::Level;
 
 mod config;
 mod fwd;
 mod logger;
 mod mapper;
+
+use mapper::Mapper;
 
 // pretty print raw packet
 fn pp_raw(pkt: &[u8]) {
@@ -135,7 +137,7 @@ fn fill(pb: &mut fwd::PktBuf, what: FakePkt) {
 }
 
 // testing concepts
-fn cip(cfg: &config::Config) {
+fn cip(cfg: &config::Config, map: &Mapper) {
     //
     let mut pb = fwd::PktBuf::new(cfg);
 
@@ -144,22 +146,22 @@ fn cip(cfg: &config::Config) {
     pb.data = config::OPTLEN;
     pb.tail = pb.data + 64;
 
-    debug!("ifc: tun");
     fill(&mut pb, FakePkt::UDP);
+    debug!("ifc tun: received pkt");
     if log_enabled!(Level::Trace) {
         pp_net(&pb.pkt[pb.data..pb.tail]);
         pp_trn(&pb.pkt[pb.data..pb.tail]);
         pp_raw(&pb.pkt[pb.data..pb.tail]);
     }
 
-    debug!("add ipref option");
-    pb.fwd_to_gw();
+    debug!("adding ipref option");
+    pb.fwd_to_gw(map);
     if log_enabled!(Level::Trace) {
         pp_net(&pb.pkt[pb.data..pb.tail]);
         pp_trn(&pb.pkt[pb.data..pb.tail]);
         pp_raw(&pb.pkt[pb.data..pb.tail]);
     }
-
+    /*
     debug!("rem ipref option");
     pb.fwd_to_tun();
     if log_enabled!(Level::Trace) {
@@ -167,6 +169,7 @@ fn cip(cfg: &config::Config) {
         pp_trn(&pb.pkt[pb.data..pb.tail]);
         pp_raw(&pb.pkt[pb.data..pb.tail]);
     }
+*/
 }
 
 // Start threads then wait forever
@@ -177,9 +180,12 @@ fn main() {
 
     info!("Starting {}", crate_name!());
 
+    let map = Arc::new(Mapper::new());
+
     let cip_cfg = cfg.clone();
+    let cip_map = map.clone();
     let cip_thread = thread::spawn(move || {
-        cip(&cip_cfg);
+        cip(&cip_cfg, &cip_map);
     });
 
     cip_thread.join().unwrap();
