@@ -23,15 +23,7 @@ impl PktBuf {
         }
     }
 
-    pub fn fwd_to_gw(&mut self, map: &Mapper) {
-        self.add_ipref_option(map)
-    }
-    /*
-    pub fn fwd_to_tun(&mut self) {
-        self.remove_ipref_option()
-    }
-*/
-    fn add_ipref_option(&mut self, map: &Mapper) {
+    pub fn add_ipref_option(&mut self, map: &Mapper) {
         //
         let ea = Ipv4Addr::from(BigEndian::read_u32(
             &self.pkt[self.data + 16..self.data + 20],
@@ -53,7 +45,7 @@ impl PktBuf {
         self.data -= config::OPTLEN;
     }
     /*
-    fn remove_ipref_option(&mut self) {
+    pub fn remove_ipref_option(&mut self) {
         let dst_gw = Ipv4Addr::new(192, 168, 84, 94);
         let dst_rff = 0x6622;
         let src_gw = Ipv4Addr::new(192, 168, 84, 93);

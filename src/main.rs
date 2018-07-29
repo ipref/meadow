@@ -155,7 +155,7 @@ fn cip(cfg: &config::Config, map: &Mapper) {
     }
 
     debug!("adding ipref option");
-    pb.fwd_to_gw(map);
+    pb.add_ipref_option(map);
     if log_enabled!(Level::Trace) {
         pp_net(&pb.pkt[pb.data..pb.tail]);
         pp_trn(&pb.pkt[pb.data..pb.tail]);
