@@ -2,9 +2,7 @@
 
 #![allow(unused_variables)]
 
-use mapper::Mapper;
 use config::Config;
+use mapper::Mapper;
 
-pub fn thread_dns_watcher(cfg: &Config, map: &Mapper) {
-
-}
+pub fn thread_dns_watcher(cfg: &Config, map: &Mapper) {}
